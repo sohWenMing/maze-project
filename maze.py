@@ -1,44 +1,48 @@
-from tkinter import Tk, Canvas, BOTH
-from units import Line, Point, Cell
+from units import Cell
 
-class Window:
-    def __init__(self, width, height):
-        self.__root = Tk()
-        self.__root.title("Maze Solver")
-        self.__root.geometry(f"{width}x{height}")
-        self.__root.protocol("WM_DELETE_WINDOW", self.close)
-        self.__canvas = Canvas(self.__root)
-        self.__canvas.pack(expand=1, fill=BOTH)
-        self.__is_running = False
+class Maze:
+    def __init__(self,
+                 x1,
+                 y1,
+                 num_rows,
+                 num_columns,
+                 cell_size_x,
+                 cell_size_y):
+        self.x1 = x1
+        self.y1 = y1
+        self.num_rows = num_rows
+        self.num_columns = num_columns
+        self.cell_size_x = cell_size_x
+        self.cell_size_y = cell_size_y
+        self.cells = []
 
-    def redraw(self):
-            self.__root.update_idletasks()
-            self.__root.update()
-
-    def wait_for_close(self):
-        self.__is_running = True
-        while self.__is_running == True:
-             self.redraw()
+    def create_row_cells(self, initial_x, initial_y, row):
+        x_current = initial_x 
+        while len(row) < self.num_columns:
+            cell = Cell(x_current, 
+                        x_current + self.cell_size_x,
+                        initial_y,
+                        initial_y + self.cell_size_y)
+            row.append(cell)
+            x_current += self.cell_size_x
+            
+    def create_cells(self):
+        #first, create the number of rows in self.cells
+        while len(self.cells) < self.num_rows:
+            self.cells.append([])
+        
+        """
+        the first cell will have an x1 of self.x1, and an x2 of 
+        self.x1 + self.cell_size_x
+        
+        it will also have a y1 of self.x1, and a 
+        y2 of self.y1 + self.cell_size y
+        """
     
-    def close(self):
-         self.__is_running = False
+        """
+        deal with a row first, within a row, only the x values will change,
+        never the y
+        """
 
-    def get_canvas(self):
-         return self.__canvas
-    
-    def draw_line(self, line):
-         line.draw(self.__canvas)
-    
-    def draw_cell(self, cell):
-         cell.draw(self.__canvas)
-
-window = Window(800, 600)
-test_cell = Cell(50, 100, 10, 60)
-test_other_cell = Cell(150, 200, 60, 110)
-window.draw_cell(test_cell)
-window.draw_cell(test_other_cell)
-test_cell.draw_move(test_other_cell, window.get_canvas(), undo=True)
-window.wait_for_close()
-
-    
+        
 
