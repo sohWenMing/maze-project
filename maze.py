@@ -16,6 +16,10 @@ class Maze:
         self.cell_size_y = cell_size_y
         self.cells = []
 
+    def create_rows(self):
+        while len(self.cells) < self.num_rows:
+            self.cells.append([])
+
     def create_row_cells(self, initial_x, initial_y, row):
         x_current = initial_x 
         while len(row) < self.num_columns:
@@ -30,6 +34,10 @@ class Maze:
         #first, create the number of rows in self.cells
         while len(self.cells) < self.num_rows:
             self.cells.append([])
+        added_y = 0
+        for row in self.cells:
+            self.create_row_cells(self.x1, self.y1 + added_y, row)
+            added_y += self.cell_size_y
         
         """
         the first cell will have an x1 of self.x1, and an x2 of 
