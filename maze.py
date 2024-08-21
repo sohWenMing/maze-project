@@ -1,4 +1,5 @@
 from units import Cell
+import time
 
 class Maze:
     def __init__(self,
@@ -44,13 +45,29 @@ class Maze:
         self.x1 + self.cell_size_x
         
         it will also have a y1 of self.x1, and a 
-        y2 of self.y1 + self.cell_size y
+        y2 of self.y1 + self.cell_size_y
         """
     
-        """
-        deal with a row first, within a row, only the x values will change,
-        never the y
-        """
+    def draw_cell(self, window, cell):
+        canvas = window.get_canvas()
+        cell.draw(canvas)
+        self.animate(window)
+
+    def animate(self, window):
+        window.redraw()
+        time.sleep(1)
+
+    def draw_all_cells(self, window):
+        for row in self.cells:
+            for cell in row:
+                self.draw_cell(window, cell)
+
+
+    
+
+
+         
+
 
         
 
