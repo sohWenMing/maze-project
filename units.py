@@ -59,13 +59,19 @@ class Cell:
         if self.has_top_wall:
             #draw line from top left to top right
             draw_cell_line(self._x1, self._y1, self._x2, self._y1, canvas)
+        else:
+             draw_cell_line(self._x1, self._y1, self._x2, self._y1, 
+                            canvas, fill_color="white")
         
         if self.has_bottom_wall:
             #draw line from bottom left to bottom right
             draw_cell_line(self._x1, self._y2, self._x2, self._y2, canvas)
+        else:
+            draw_cell_line(self._x1, self._y2, self._x2, self._y2, 
+                           canvas, fill_color="white")
+             
         
     def draw_move(self, to_cell, canvas, undo=False):
-         print("draw move was activated")
          
          def get_middle_coord(greater_coord, lesser_coord):
               return(0 if greater_coord - lesser_coord == 0 
@@ -74,8 +80,6 @@ class Cell:
          self_y_middle = get_middle_coord(self._y2, self._y1)
          to_x_middle = get_middle_coord(to_cell._x2, to_cell._x1)
          to_y_middle = get_middle_coord(to_cell._y2, to_cell._y1)
-         print(f"self x middle: {self_x_middle}")
-         print(f"self y middle: {self_y_middle}")
          draw_cell_line(self_x_middle, self_y_middle, 
                         to_x_middle, to_y_middle, canvas, 
                         fill_color="grey" if undo == False else "red") 

@@ -62,6 +62,16 @@ class Maze:
             for cell in row:
                 self.draw_cell(window, cell)
 
+    def break_entrance_and_exit(self, window):
+        entrance_cell = self.cells[0][0]
+        exit_cell = self.cells[-1][-1]
+
+        #remove the top of the entrance cell
+        entrance_cell.has_top_wall = False
+        self.draw_cell(window, entrance_cell)
+        exit_cell.has_bottom_wall = False
+        self.draw_cell(window, exit_cell)
+
 
     
 
