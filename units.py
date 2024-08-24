@@ -10,6 +10,8 @@ def draw_cell_line(x1, y1, x2, y2, canvas, fill_color="black"):
     line = (create_line(x1, y1, x2, y2, fill_color))
     line.draw(canvas)
 
+os_background_color = "#d9d9d9"
+
 class Point:
     def __init__(self, x, y):
         self.x_coord = x
@@ -38,6 +40,7 @@ class Cell:
         self.has_right_wall = has_right_wall
         self.has_top_wall = has_top_wall
         self.has_bottom_wall = has_bottom_wall
+        self.visited = False
 
         """
         _x1 _y1 is the top left corner of the cell 
@@ -61,16 +64,16 @@ class Cell:
             draw_cell_line(self._x1, self._y1, self._x2, self._y1, canvas)
         else:
              draw_cell_line(self._x1, self._y1, self._x2, self._y1, 
-                            canvas, fill_color="white")
-        
+                            canvas, fill_color=os_background_color)
+         
         if self.has_bottom_wall:
             #draw line from bottom left to bottom right
             draw_cell_line(self._x1, self._y2, self._x2, self._y2, canvas)
         else:
-            draw_cell_line(self._x1, self._y2, self._x2, self._y2, 
-                           canvas, fill_color="white")
-             
-        
+             draw_cell_line(self._x1, self._y2, self._x2, self._y2, 
+                            canvas, fill_color=os_background_color)
+              
+         
     def draw_move(self, to_cell, canvas, undo=False):
          
          def get_middle_coord(greater_coord, lesser_coord):
@@ -84,5 +87,6 @@ class Cell:
                         to_x_middle, to_y_middle, canvas, 
                         fill_color="grey" if undo == False else "red") 
 
-        
+    def __repr__(self):
+         return f"x1: {self._x1}, x2: {self._x2}, y1: {self._y1}, y2: {self._y2}"
             

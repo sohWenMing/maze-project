@@ -1,5 +1,40 @@
 from units import Cell
 import time
+import random
+
+def check_neighbour_direction(current, neighbour):
+    is_left = False
+    is_right = False
+    is_up = False
+    is_down = False
+
+    current_i = current[0]
+    current_j = current[1]
+    neighbour_i = neighbour[0]
+    neighbour_j = neighbour[1]
+
+    #check for neighbour left of current
+    if neighbour_j < current_j:
+        is_left = True
+    #check for neighbour right of current
+    if neighbour_j > current_j:
+        is_right = True
+    #check for neighbour above current
+    if neighbour_i < current_i:
+        is_up = True
+    #check for neighbour below current
+    if neighbour_i > current_i:
+        is_down = True
+
+    return {
+        is_left,
+        is_right,
+        is_up, 
+        is_down
+    }
+    
+
+    
 
 class Maze:
     def __init__(self,
@@ -8,7 +43,8 @@ class Maze:
                  num_rows,
                  num_columns,
                  cell_size_x,
-                 cell_size_y):
+                 cell_size_y,
+                 seed = None):
         self.x1 = x1
         self.y1 = y1
         self.num_rows = num_rows
@@ -16,7 +52,10 @@ class Maze:
         self.cell_size_x = cell_size_x
         self.cell_size_y = cell_size_y
         self.cells = []
-
+        self.visited_for_break = []
+        self.to_visit_for_break = []
+        
+        
     def create_rows(self):
         while len(self.cells) < self.num_rows:
             self.cells.append([])
@@ -72,7 +111,50 @@ class Maze:
         exit_cell.has_bottom_wall = False
         self.draw_cell(window, exit_cell)
 
+    def break_walls_r(self,i,j):
+        """
+        i and j are the respective rows and columns of the cells within
+        the maze
+        """
+        current = (i, j)
+        self.visited_for_break.append(current)
+        current_neighbours = self.get_cell_neighbours(current)
+        for neighbour in current_neighbours:
+            if neighbour not in self.visited_for_break and neighbour not in self.to_visit_for_break:
+                self.to_visit_for_break.append(neighbour)
+        if len(self.to_visit_for_break) == 0:
+            return
+        else:
+            neighbour_to_visit = self.to_visit_for_break.pop(random.randrange(len(self.to_visit_for_break)))
 
+            #compare the coordinates of current to neighbour_to_visit
+           
+
+
+
+
+        
+    def get_cell_neighbours(self, i, j):
+        neighbours = []
+        if j > 0:
+            neighbours.append((i, j-1))
+        if i > 0:
+            neighbours.append((i-1, j))
+        if j < self.num_columns - 1:
+            neighbours.append((i, j+1))
+        if i < self.num_rows - 1:
+            neighbours.append((i+1, j))
+        return neighbours
+
+    
+            
+    
+   
+        
+        
+
+        
+        
     
 
 
