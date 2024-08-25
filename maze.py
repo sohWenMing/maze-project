@@ -195,8 +195,8 @@ class Maze:
             
             current_cell = self.cells[current[0]][current[1]]
             neighbour_cell = self.cells[neighbour_to_visit[0]][neighbour_to_visit[1]]
-
             neighbour_direction = check_neighbour_direction(current, neighbour_to_visit)
+            set_current_and_neighbour_walls(current_cell, neighbour_cell, neighbour_direction)
 
 
 
