@@ -1,29 +1,20 @@
 import unittest
-from maze import Maze, check_neighbour_direction
+from maze import Maze, check_neighbour_direction, set_current_and_neighbour_walls, NeighbourDirection
+from exceptions import SameCellException, DifferenceTooLargeException, BothDirectionException
 
-class MazeTest(unittest.TestCase):
+class Suite_1_MazeTest(unittest.TestCase):
     def setUp(self):
         self.maze = Maze(0, 0, 3, 3, 10, 10)
             
     def test_1_create_rows(self):
-        """
-        Test that create_rows initializes the correct number of rows
-        """
+        
         self.maze.create_rows()
         self.assertEqual(len(self.maze.cells), self.maze.num_rows,
                          "Number of rows in self.maze.cells should match self.maze.num_rows")
 
     
     def test_2_create_row_cells(self):
-        """
-        Test for create_row_cells
-        """
-        """
-        This test checks that:
-            * The number of cells created in a row is as defined in the maze class
-            * The positioning of the starting x coord of each cell is correct
-            * the size of each individual cell that is created is correct
-        """
+        
         self.maze.create_rows()
         self.maze.create_row_cells(self.maze.x1, 
                                    self.maze.y1, self.maze.cells[0])
@@ -53,7 +44,6 @@ class MazeTest(unittest.TestCase):
             current_index += 1
     
     def test_3_create_cells(self):
-        """Complete test of create_cells"""
         self.maze.create_cells()
 
         added_y = 0
@@ -63,7 +53,7 @@ class MazeTest(unittest.TestCase):
             added_y += self.maze.cell_size_y
 
     def test_4_get_cell_neighbours(self):
-        """Test that checks retrieval of neighbours of cell"""
+       
         self.maze.create_cells()
 
         test_cases = [
@@ -72,7 +62,7 @@ class MazeTest(unittest.TestCase):
             ((0, 2), [(0, 1), (1, 2)]), 
             ((1, 0), [(0, 0), (1, 1), (2, 0)]), 
             ((1, 1), [(1, 0), (0, 1), (1, 2), (2, 1)]), 
-            ((1, 2), [(1, 1), (0, 2), (2, 2)]), 
+            ((1, 2), [(1, 1), (0, 2), (2, 2)]),
             ((2, 0), [(1, 0), (2, 1)]),
             ((2, 1), [(2, 0), (1, 1), (2, 2)]), 
             ((2, 2), [(2, 1), (1, 2)])
@@ -81,28 +71,70 @@ class MazeTest(unittest.TestCase):
         for(i, j), expected in test_cases:
             self.assertEqual(sorted(self.maze.get_cell_neighbours(i, j)), sorted(expected), f"Testing cell ({i}, {j})" )
 
-class HelperTest(unittest.TestCase):
+class Suite_2_HelperTest(unittest.TestCase):
     def test_5_test_check_neighbour_direction(self):
-        """
-        Testing of check neighbour direction function
-        """
+        
         test_cases = [
             (
-                ((0,1), (0,0)), {True, False, False, False}
+                ((0,1), (0,0)), NeighbourDirection.LEFT
             ),
             (
-                ((0,0), (0,1)), {False, True, False, False}
+                ((0,0), (0,1)), NeighbourDirection.RIGHT
             ),
             (
-                ((1,0), (0,0)), {False, False, True, False}
+                ((1,0), (0,0)), NeighbourDirection.UP
             ),
             (
-                ((0,0), (2,0)), {False, False, False, True}
+                ((0,0), (1,0)), NeighbourDirection.DOWN
             ),
 
         ]
         for (i, j), expected in test_cases:
             self.assertEqual(check_neighbour_direction(i, j), expected)
+
+    def test_6_test_check_neighbour_directions_exceptions(self):
+       
+        with self.assertRaises(SameCellException):
+            check_neighbour_direction((0,0), (0,0))
+        with self.assertRaises(BothDirectionException):
+            check_neighbour_direction((0,0), (1,1)) 
+        with self.assertRaises(DifferenceTooLargeException):
+            check_neighbour_direction((0,0), (0, 2))
+
+    def test_7_test_set_current_and_neighbour_walls(self):
+        
+        self.maze = Maze(0, 0, 3, 3, 10, 10)
+        self.maze.create_cells()
+        
+        # definition of test case: (current_cell, neighbour_cell), [[has walls of current], [has walls of neighbour]]
+        # has walls are set as has_left_wall, has_right_wall, has_top_wall, has_bottom_wall
+        #cells 1 - 9 are cells in a 3 x 3 matrix
+
+        ###################
+        # 1 2 3 #
+        # 4 5 6 #
+        # 7 8 9 # 
+        ###################
+
+        cell_1 = self.maze.cells[0][0]
+        cell_2 = self.maze.cells[0][1]
+        cell_3 = self.maze.cells[0][2]
+        cell_6 = self.maze.cells[1][2]
+        cell_9 = self.maze.cells[2][2]
+
+        test_cases = [
+            ((cell_2, cell_1), NeighbourDirection.LEFT, [False, True, True, True], [True, False, True, True]),
+            ((cell_2, cell_3), NeighbourDirection.RIGHT, [False, False, True, True], [False, True, True, True]),
+            ((cell_6, cell_3), NeighbourDirection.UP, [True, True, False, True], [False, True, True, False]),
+            ((cell_6, cell_9), NeighbourDirection.DOWN, [True, True, False, False], [True, True, False, True])
+        ]
+
+        for (i,j), neighbour_direction, expected_current_walls, expected_neighbour_walls in test_cases:
+            set_current_and_neighbour_walls(i, j, neighbour_direction)
+            self.assertEqual([i.has_left_wall, i.has_right_wall, i.has_top_wall, i.has_bottom_wall], expected_current_walls)
+            self.assertEqual([j.has_left_wall, j.has_right_wall, j.has_top_wall, j.has_bottom_wall], expected_neighbour_walls)
+        #for this to work, there has to be a maze for context to be setup
+
 
 if __name__ ==  '__main__':
     unittest.main(verbosity=2)
