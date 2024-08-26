@@ -54,10 +54,15 @@ class Cell:
         if self.has_left_wall:
             #draw a line from top left to bottom left
             draw_cell_line(self._x1, self._y1, self._x1, self._y2, canvas)
+        else:
+            draw_cell_line(self._x1, self._y1, self._x1, self._y2, canvas, fill_color=os_background_color)
+             
         
         if self.has_right_wall:
             #draw a line from top right to bottom right
             draw_cell_line(self._x2, self._y1, self._x2, self._y2, canvas)
+        else:
+            draw_cell_line(self._x2, self._y1, self._x2, self._y2, canvas, fill_color=os_background_color)
         
         if self.has_top_wall:
             #draw line from top left to top right

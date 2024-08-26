@@ -11,6 +11,8 @@ class NeighbourDirection(Enum):
     DOWN = 4
 
 def check_neighbour_direction(current, neighbour):
+    print("current", current)
+    print("neighbour", neighbour)
     
     class Exception_Type(Enum):
         EX_SAME_CELL = 1
@@ -51,6 +53,7 @@ def check_neighbour_direction(current, neighbour):
 
     #check for neighbour left of current
     if neighbour_j < current_j:
+        
         check_difference(neighbour_j, current_j)
         check_other_direction(neighbour_i, current_i)
         is_left = True
@@ -120,6 +123,8 @@ class Maze:
         self.cells = []
         self.visited_for_break = []
         self.to_visit_for_break = []
+        self.seed = None
+        random.seed(self.seed)
         
         
     def create_rows(self):
@@ -159,7 +164,7 @@ class Maze:
 
     def animate(self, window):
         window.redraw()
-        time.sleep(1)
+        time.sleep(0.1)
 
     def draw_all_cells(self, window):
         for row in self.cells:
@@ -176,37 +181,28 @@ class Maze:
         exit_cell.has_bottom_wall = False
         self.draw_cell(window, exit_cell)
 
-    def break_walls_r(self,i,j):
+    def break_walls_r(self,i,j, window):
         """
         i and j are the respective rows and columns of the cells within
         the maze
         """
         current = (i, j)
-        self.visited_for_break.append(current)
-        current_neighbours = self.get_cell_neighbours(current)
-        for neighbour in current_neighbours:
-            if neighbour not in self.visited_for_break and neighbour not in self.to_visit_for_break:
-                self.to_visit_for_break.append(neighbour)
-        if len(self.to_visit_for_break) == 0:
-            return
-        else:
-            neighbour_to_visit = self.to_visit_for_break.pop(random.randrange(len(self.to_visit_for_break)))
-            #get the coordinates of the neighbour that is to be visited
-            
-            current_cell = self.cells[current[0]][current[1]]
-            neighbour_cell = self.cells[neighbour_to_visit[0]][neighbour_to_visit[1]]
-            neighbour_direction = check_neighbour_direction(current, neighbour_to_visit)
-            set_current_and_neighbour_walls(current_cell, neighbour_cell, neighbour_direction)
-
-
-
-
-            #compare the coordinates of current to neighbour_to_visit
-           
-
-
-
-
+        print(f"in break_walls_r: current: {current}")
+        self.cells[current[0]][current[1]].visited = True
+        while True:
+            current_neighbours = self.get_cell_neighbours(current[0], current[1])
+            not_visited_list = list(filter(lambda coords: self.cells[coords[0]][coords[1]].visited == False, current_neighbours))
+            if len(not_visited_list) == 0:
+                current_cell = self.cells[current[0]][current[1]]
+                self.draw_cell(window, current_cell)
+                return
+            else:
+                neighbour_to_visit = not_visited_list[random.randrange(len(not_visited_list))]
+                neighbour_direction = check_neighbour_direction(current, neighbour_to_visit)
+                current_cell = self.cells[current[0]][current[1]]
+                neighbour_cell = self.cells[neighbour_to_visit[0]][neighbour_to_visit[1]]
+                set_current_and_neighbour_walls(current_cell, neighbour_cell, neighbour_direction)
+                self.break_walls_r(neighbour_to_visit[0], neighbour_to_visit[1], window)
         
     def get_cell_neighbours(self, i, j):
         neighbours = []
