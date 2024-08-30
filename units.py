@@ -93,5 +93,5 @@ class Cell:
                         fill_color="grey" if undo == False else "red") 
 
     def __repr__(self):
-         return f"x1: {self._x1}, x2: {self._x2}, y1: {self._y1}, y2: {self._y2}"
+         return f"x1: {self._x1}, x2: {self._x2}, y1: {self._y1}, y2: {self._y2} visited: {self.visited}"
             

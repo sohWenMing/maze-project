@@ -1,6 +1,7 @@
 import unittest
-from maze import Maze, check_neighbour_direction, set_current_and_neighbour_walls, NeighbourDirection
+from maze import Maze, check_neighbour_direction, set_current_and_neighbour_walls, NeighbourDirection, check_can_move_to_neighbour
 from exceptions import SameCellException, DifferenceTooLargeException, BothDirectionException
+from window import Window
 
 class Suite_1_MazeTest(unittest.TestCase):
     def setUp(self):
@@ -135,7 +136,48 @@ class Suite_2_HelperTest(unittest.TestCase):
             self.assertEqual([j.has_left_wall, j.has_right_wall, j.has_top_wall, j.has_bottom_wall], expected_neighbour_walls)
         #for this to work, there has to be a maze for context to be setup
 
+# class Suite_3_VisitAndResetTest(unittest.TestCase):
+#     def test_8_visit_break_walls_and_reset(self):
+#         self.maze = Maze(10, 10, 10, 10, 50, 50, seed=10)
+#         self.maze.create_cells()
+#         self.window = Window(800, 600)
+#         self.maze.draw_all_cells(self.window)
+#         self.maze.break_entrance_and_exit(self.window)
+#         self.maze.break_walls_r(0,0, self.window)
 
+#         for row in self.maze.cells:
+#             for cell in row:
+#                 self.assertEqual(cell.visited, True)
+        
+#         self.maze.reset_cells_visited()
+#         for row in self.maze.cells:
+#             for cell in row:
+#                 self.assertEqual(cell.visited, False)
+
+class Suite_4_CheckCanMoveToNeighbours(unittest.TestCase):
+    def setUp(self):
+        self.maze = Maze(10, 10, 3, 3, 50, 50, seed=10)
+    
+    def test_9_check_can_move_to_neighbour(self):    
+        self.maze.create_cells()
+        self.maze.cells[0][0].has_right_wall = False
+        self.assertEqual(check_can_move_to_neighbour((0,0), (0,1), self.maze.cells[0][0]), True, "Check can move right, should return True")
+        self.assertEqual(check_can_move_to_neighbour((0,1), (0,2), self.maze.cells[0][1]), False, "Check can move right, should return False")
+        self.maze.cells[0][0].has_bottom_wall = False
+        self.assertEqual(check_can_move_to_neighbour((0,0), (1,0), self.maze.cells[0][0]), True, "Check can move down, should return True")
+        self.assertEqual(check_can_move_to_neighbour((0,1), (1,1), self.maze.cells[0][1]), False, "Check can move down, shoudl return False")
+        self.maze.cells[0][1].has_left_wall = False
+        self.assertEqual(check_can_move_to_neighbour((0,1), (0,0), self.maze.cells[0][1]), True, "Check can move left, should return True")
+        self.assertEqual(check_can_move_to_neighbour((0,2), (0,1), self.maze.cells[0][2]), False, "Check can move left, shoudl return False")
+        self.maze.cells[1][0].has_top_wall = False
+        self.assertEqual(check_can_move_to_neighbour((1,0), (0,0), self.maze.cells[1][0]), True, "Check can move up, should return True")
+        self.assertEqual(check_can_move_to_neighbour((2,0), (1,0), self.maze.cells[2][0]), False, "Check can move up, should return False")
+
+
+        
+
+
+        
 if __name__ ==  '__main__':
     unittest.main(verbosity=2)
 

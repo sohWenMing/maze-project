@@ -11,8 +11,6 @@ class NeighbourDirection(Enum):
     DOWN = 4
 
 def check_neighbour_direction(current, neighbour):
-    print("current", current)
-    print("neighbour", neighbour)
     
     class Exception_Type(Enum):
         EX_SAME_CELL = 1
@@ -81,7 +79,19 @@ def check_neighbour_direction(current, neighbour):
         return NeighbourDirection.UP
     if is_down:
         return NeighbourDirection.DOWN
-        
+
+def check_can_move_to_neighbour(current, neighbour, cell):
+         neighbour_direction = check_neighbour_direction(current, neighbour)
+         if neighbour_direction == NeighbourDirection.LEFT and cell.has_left_wall == False:
+            return True
+         if neighbour_direction == NeighbourDirection.RIGHT and cell.has_right_wall == False:
+            return True
+         if neighbour_direction == NeighbourDirection.UP and cell.has_top_wall == False:
+             return True
+         if neighbour_direction == NeighbourDirection.DOWN and cell.has_bottom_wall == False:
+             return True
+         return False
+         
 def set_current_and_neighbour_walls(current: Cell, neighbour: Cell, direction: NeighbourDirection):
     if direction == NeighbourDirection.LEFT:
         current.has_left_wall = False
@@ -160,9 +170,13 @@ class Maze:
     def draw_cell(self, window, cell):
         canvas = window.get_canvas()
         cell.draw(canvas)
-        self.animate(window)
+        self.cell_animate(window)
 
-    def animate(self, window):
+    def cell_animate(self, window):
+        window.redraw()
+        time.sleep(0.01)
+
+    def line_animate(self, window):
         window.redraw()
         time.sleep(0.1)
 
@@ -186,24 +200,20 @@ class Maze:
         i and j are the respective rows and columns of the cells within
         the maze
         """
-        current = (i, j)
-        print(f"in break_walls_r: current: {current}")
-        self.cells[current[0]][current[1]].visited = True
         while True:
-            current_neighbours = self.get_cell_neighbours(current[0], current[1])
-            not_visited_list = list(filter(lambda coords: self.cells[coords[0]][coords[1]].visited == False, current_neighbours))
-            if len(not_visited_list) == 0:
-                current_cell = self.cells[current[0]][current[1]]
+            current_cell = self.cells[i][j]
+            current_cell.visited = True
+            neighbour_coords = self.get_cell_neighbours(i, j)
+            non_visited_coords = list(filter(lambda x: self.cells[x[0]][x[1]].visited == False, neighbour_coords))
+            if len(non_visited_coords) == 0:
                 self.draw_cell(window, current_cell)
                 return
             else:
-                neighbour_to_visit = not_visited_list[random.randrange(len(not_visited_list))]
-                neighbour_direction = check_neighbour_direction(current, neighbour_to_visit)
-                current_cell = self.cells[current[0]][current[1]]
-                neighbour_cell = self.cells[neighbour_to_visit[0]][neighbour_to_visit[1]]
-                set_current_and_neighbour_walls(current_cell, neighbour_cell, neighbour_direction)
-                self.break_walls_r(neighbour_to_visit[0], neighbour_to_visit[1], window)
-        
+                coord_to_visit = non_visited_coords[random.randrange(len(non_visited_coords))]
+                neighbour_cell = self.cells[coord_to_visit[0]][coord_to_visit[1]]
+                set_current_and_neighbour_walls(current_cell, neighbour_cell, check_neighbour_direction((i,j), coord_to_visit))
+                self.break_walls_r(coord_to_visit[0], coord_to_visit[1], window)
+
     def get_cell_neighbours(self, i, j):
         neighbours = []
         if j > 0:
@@ -216,10 +226,59 @@ class Maze:
             neighbours.append((i+1, j))
         return neighbours
 
-    
+    def reset_cells_visited(self):
+        for row in self.cells:
+            for cell in row:
+                cell.visited = False
             
+    def solve(self, window):
+        
+        self.solve_r(0, 0, window)
     
-   
+    def solve_r(self, i, j, window):
+        canvas = window.get_canvas()
+        
+        self.line_animate(window)
+        current = self.cells[i][j]
+        current.visited = True
+        if i == self.num_rows - 1 and j == self.num_columns - 1:
+            return True
+        current_neighbours = self.get_cell_neighbours(i, j)
+       
+        neighbours_to_visit = []
+        for neighbour in current_neighbours:
+          
+            if check_can_move_to_neighbour((i, j), neighbour, self.cells[i][j]) and self.cells[neighbour[0]][neighbour[1]].visited == False:
+                neighbours_to_visit.append(neighbour)
+        
+        # while len(neighbours_to_visit) > 0:
+        #     to_visit_coords = neighbours_to_visit.pop(0)
+        #     to_visit_node = self.cells[to_visit_coords[0]][to_visit_coords[1]]
+        #     current.draw_move(to_visit_node, canvas)
+        #     if self.solve_r(to_visit_coords[0], to_visit_coords[1], window) == False:
+        #         to_visit_node.draw_move(current, canvas, undo=True)
+        #     if self.solve_r(to_visit_coords[0], to_visit_coords[1], window) == True:
+        #         return True
+        
+        for neighbour in neighbours_to_visit:
+            to_visit_node = self.cells[neighbour[0]][neighbour[1]]
+            current.draw_move(to_visit_node, canvas)
+            if self.solve_r(neighbour[0], neighbour[1], window) == False:
+                current.draw_move(to_visit_node, canvas, undo=True)
+            if self.solve_r(neighbour[0], neighbour[1], window) == True:
+                return True
+        return False
+            
+
+
+
+
+
+
+
+            
+
+
         
         
 
